@@ -108,6 +108,8 @@ pytest
 ```bash
 alpha-lab dl-train --config configs/example_dl_train_tcn.yaml
 alpha-lab dl-infer --config configs/example_dl_infer_tcn.yaml
+# full DL regression (TCN + Transformer + output checks)
+./scripts/regression_dl.sh
 ```
 
 ## 目录结构
