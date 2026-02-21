@@ -31,7 +31,6 @@ def _attach_net_metrics(result: EvaluationResult, cost_model: LinearCostModel) -
     costs = cost_model.estimate(result.turnover)
     costs = costs.reindex(result.long_short_returns.index).ffill().fillna(0.0)
     net_ls = result.long_short_returns - costs
-    result.long_short_returns = net_ls
     result.metrics["ls_net_mean"] = float(net_ls.mean()) if not net_ls.empty else float(np.nan)
     result.metrics["ls_net_sharpe"] = (
         float(net_ls.mean() / (net_ls.std(ddof=0) + 1e-12) * np.sqrt(252))
