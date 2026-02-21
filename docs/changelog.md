@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.2] - 2026-02-21
+
+### Added
+
+- Added `scripts/regression_dl.sh` to run TCN/Transformer `dl-train -> dl-infer` and validate generated artifacts/reports in one command
+
+### Changed
+
+- Updated regression docs and README/contributing checklists to include the DL one-command regression path after installing `.[dl]`
+
 ## [0.3.1] - 2026-02-21
 
 ### Fixed
