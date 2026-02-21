@@ -4,7 +4,6 @@ import argparse
 from pathlib import Path
 
 from alpha_lab.data import generate_demo_data
-from alpha_lab.gui import launch_gui
 from alpha_lab.pipeline import run_pipeline, train_dl_pipeline
 
 
@@ -51,6 +50,8 @@ def _cmd_dl_infer(args: argparse.Namespace) -> int:
 
 
 def _cmd_gui(_: argparse.Namespace) -> int:
+    from alpha_lab.gui import launch_gui
+
     return launch_gui()
 
 
