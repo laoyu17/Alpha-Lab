@@ -53,6 +53,9 @@ def test_pipeline_end_to_end(demo_data_dir: Path, tmp_path: Path) -> None:
     assert "dl_alpha" in result.factor_values.columns
     assert result.report_path is not None
     assert result.report_path.exists()
+    gross_mean = float(result.evaluation["price_factor"].long_short_returns.mean())
+    assert float(result.evaluation["price_factor"].metrics["ls_mean"]) == pytest.approx(gross_mean)
+    assert float(result.evaluation["price_factor"].metrics["ls_net_mean"]) <= gross_mean + 1e-12
 
     summary_path = result.report_path.parent / "summary.csv"
     summary = pd.read_csv(summary_path)
