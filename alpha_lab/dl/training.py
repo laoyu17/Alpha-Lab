@@ -30,6 +30,18 @@ def _split_train_val(n_samples: int, val_split: float) -> tuple[np.ndarray, np.n
     return indices[:train_size], indices[train_size:]
 
 
+def _clone_state_dict(state_dict: dict[str, Any]) -> dict[str, Any]:
+    cloned: dict[str, Any] = {}
+    for key, value in state_dict.items():
+        if hasattr(value, "detach") and hasattr(value, "cpu") and hasattr(value, "clone"):
+            cloned[key] = value.detach().cpu().clone()
+        elif hasattr(value, "copy"):
+            cloned[key] = value.copy()
+        else:
+            cloned[key] = value
+    return cloned
+
+
 def train_model(
     spec: DLSpec,
     frame: pd.DataFrame,
@@ -66,10 +78,12 @@ def train_model(
     loss_fn = torch.nn.MSELoss()
 
     best_val = float("inf")
+    best_epoch = 0
+    best_state: dict[str, Any] | None = None
     epochs = max(1, int(spec.train.epochs))
     batch_size = max(1, int(spec.train.batch_size))
 
-    for _ in range(epochs):
+    for epoch in range(epochs):
         model.train()
         permutation = torch.randperm(train_x.size(0))
         for start in range(0, train_x.size(0), batch_size):
@@ -86,6 +100,11 @@ def train_model(
             val_loss = float(loss_fn(val_pred, val_y).item())
         if val_loss < best_val:
             best_val = val_loss
+            best_epoch = epoch + 1
+            best_state = _clone_state_dict(model.state_dict())
+
+    if best_state is None:
+        best_state = _clone_state_dict(model.state_dict())
 
     artifact_path = Path(artifact_dir)
     artifact_path.mkdir(parents=True, exist_ok=True)
@@ -98,7 +117,7 @@ def train_model(
 
     payload: dict[str, Any] = {
         "model_type": spec.model_type,
-        "state_dict": model.state_dict(),
+        "state_dict": best_state,
         "feature_names": dataset.feature_names,
         "lookback": dataset.features.shape[1],
         "params": spec.params,
@@ -110,6 +129,7 @@ def train_model(
         "train_size": int(train_x.size(0)),
         "val_size": int(val_x.size(0)),
         "best_val_loss": best_val,
+        "best_epoch": best_epoch,
         "feature_names": dataset.feature_names,
     }
     metadata_path = checkpoint_path.with_suffix(".json")

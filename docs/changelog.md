@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.1] - 2026-02-21
+
+### Fixed
+
+- `dl-train` now saves the best-validation checkpoint weights instead of the last-epoch weights, and records `best_epoch` in metadata
+- `alpha-lab run` now returns a non-zero exit code with readable error output when pipeline execution fails
+
+### Changed
+
+- `summary.csv` now includes cost-adjusted net metrics: `ls_net_mean` and `ls_net_sharpe`
+- Expanded regression coverage for guard threshold behavior, CLI failure paths, summary net-metric schema, and DL best-checkpoint behavior
+
 ## [0.3.0] - 2026-02-21
 
 ### Added

@@ -100,6 +100,8 @@ class ReportBuilder:
                     "ic_mean": result.metrics.get("ic_mean", float("nan")),
                     "rank_ic_mean": result.metrics.get("rank_ic_mean", float("nan")),
                     "ls_sharpe": result.metrics.get("ls_sharpe", float("nan")),
+                    "ls_net_mean": result.metrics.get("ls_net_mean", float("nan")),
+                    "ls_net_sharpe": result.metrics.get("ls_net_sharpe", float("nan")),
                     "turnover_mean": result.metrics.get("turnover_mean", float("nan")),
                 }
             )

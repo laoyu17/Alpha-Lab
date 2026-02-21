@@ -15,7 +15,11 @@ def _cmd_generate_demo_data(args: argparse.Namespace) -> int:
 
 
 def _cmd_run(args: argparse.Namespace) -> int:
-    result = run_pipeline(args.config)
+    try:
+        result = run_pipeline(args.config)
+    except Exception as exc:
+        print(f"[alpha-lab] run failed: {exc}")
+        return 1
     print(f"[alpha-lab] task completed: {result.task_name}")
     print(f"[alpha-lab] report: {result.report_path}")
     if result.guard_report.issues:
