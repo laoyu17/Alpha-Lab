@@ -14,6 +14,15 @@ _DATASET_CANDIDATES: dict[str, tuple[str, ...]] = {
 }
 
 
+def _is_date_only(text: str) -> bool:
+    normalized = text.strip()
+    if not normalized:
+        return False
+    if ":" in normalized:
+        return False
+    return " " not in normalized and "T" not in normalized
+
+
 def _read_arrow_ipc(path: Path) -> pd.DataFrame:
     """Read Arrow IPC file in either file or stream format."""
     with pa.memory_map(path, "r") as source:
@@ -74,7 +83,10 @@ class DataPortal:
         if start is not None:
             df = df[df["datetime"] >= pd.Timestamp(start)]
         if end is not None:
-            df = df[df["datetime"] <= pd.Timestamp(end)]
+            end_ts = pd.Timestamp(end)
+            if frequency == "minute" and _is_date_only(end):
+                end_ts = end_ts + pd.Timedelta(days=1) - pd.Timedelta(microseconds=1)
+            df = df[df["datetime"] <= end_ts]
 
         df = df.sort_values(["datetime", "symbol"])
         return df.set_index(["datetime", "symbol"]).sort_index()
