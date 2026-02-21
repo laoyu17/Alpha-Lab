@@ -1,9 +1,7 @@
-# Assets Placeholder
+# Assets
 
-本目录用于放置项目展示素材（架构图、GUI 截图、报告截图）。
+本目录用于放置项目展示素材（GUI 截图、报告预览截图等）。
 
-- `gui-task.png`: 任务配置页截图
-- `gui-runner.png`: 运行日志页截图
-- `report-preview.png`: 报告页截图
-
-当前仓库中的图片是占位图，投递前建议替换为真实运行截图。
+- `gui-task.png`: GUI 的任务配置页（Task Config）截图
+- `gui-runner.png`: GUI 的任务运行页（Task Runner）截图
+- `report-preview.png`: GUI 的报告查看页（Report Viewer）截图
