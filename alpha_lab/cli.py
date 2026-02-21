@@ -5,7 +5,7 @@ from pathlib import Path
 
 from alpha_lab.data import generate_demo_data
 from alpha_lab.gui import launch_gui
-from alpha_lab.pipeline import run_pipeline
+from alpha_lab.pipeline import run_pipeline, train_dl_pipeline
 
 
 def _cmd_generate_demo_data(args: argparse.Namespace) -> int:
@@ -26,6 +26,30 @@ def _cmd_run(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_dl_train(args: argparse.Namespace) -> int:
+    try:
+        result = train_dl_pipeline(args.config)
+    except Exception as exc:
+        print(f"[alpha-lab] dl-train failed: {exc}")
+        return 1
+    print("[alpha-lab] DL training completed.")
+    print(f"[alpha-lab] checkpoint: {result.checkpoint_path}")
+    print(f"[alpha-lab] metadata: {result.metadata_path}")
+    print(f"[alpha-lab] train_size={result.train_size} val_size={result.val_size}")
+    return 0
+
+
+def _cmd_dl_infer(args: argparse.Namespace) -> int:
+    try:
+        result = run_pipeline(args.config)
+    except Exception as exc:
+        print(f"[alpha-lab] dl-infer failed: {exc}")
+        return 1
+    print(f"[alpha-lab] DL inference completed: {result.task_name}")
+    print(f"[alpha-lab] report: {result.report_path}")
+    return 0
+
+
 def _cmd_gui(_: argparse.Namespace) -> int:
     return launch_gui()
 
@@ -42,6 +66,17 @@ def build_parser() -> argparse.ArgumentParser:
     run = sub.add_parser("run", help="Run factor research pipeline from a YAML config")
     run.add_argument("--config", required=True, help="Path to task yaml config")
     run.set_defaults(func=_cmd_run)
+
+    dl_train = sub.add_parser("dl-train", help="Train DL model defined in YAML config")
+    dl_train.add_argument("--config", required=True, help="Path to task yaml config")
+    dl_train.set_defaults(func=_cmd_dl_train)
+
+    dl_infer = sub.add_parser(
+        "dl-infer",
+        help="Run pipeline with DL inference config and generate report",
+    )
+    dl_infer.add_argument("--config", required=True, help="Path to task yaml config")
+    dl_infer.set_defaults(func=_cmd_dl_infer)
 
     gui = sub.add_parser("gui", help="Launch PyQt6 visual dashboard")
     gui.set_defaults(func=_cmd_gui)

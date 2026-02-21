@@ -1,0 +1,61 @@
+task_name: demo_dl_infer_tcn
+data_dir: data/demo
+output_dir: outputs
+frequency: daily
+symbols: [AAA, BBB, CCC, DDD, EEE]
+start: "2023-01-03"
+end: "2023-12-31"
+
+factors:
+  - name: price_smooth_20
+    source: close
+    operations:
+      - op: rolling_mean
+        window: 20
+      - op: zscore
+      - op: winsorize
+        lower: 0.05
+        upper: 0.95
+      - op: neutralize
+    fillna: ffill
+
+  - name: volume_decay_10
+    source: volume
+    operations:
+      - op: decay_linear
+        window: 10
+      - op: rank
+      - op: winsorize
+      - op: neutralize
+    fillna: zero
+
+eval:
+  forward_period: 1
+  quantiles: 5
+  rolling_window: 120
+  walk_forward_train: 120
+  walk_forward_test: 30
+
+guards:
+  enable_future_check: true
+  enforce_tradable_filter: true
+  limit_move_threshold: 0.095
+
+costs:
+  commission_bps: 2.0
+  slippage_bps: 5.0
+
+dl:
+  enabled: true
+  mode: infer
+  model_type: tcn
+  output_name: dl_alpha_tcn
+  checkpoint_path: outputs/demo_dl_train_tcn/dl/tcn_checkpoint.pt
+  features: [price_smooth_20, volume_decay_10, close_ret_1]
+  params:
+    lookback: 20
+    horizon: 1
+    hidden_dim: 32
+    num_layers: 2
+    dropout: 0.1
+    kernel_size: 3

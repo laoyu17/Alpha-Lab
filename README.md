@@ -61,7 +61,12 @@ alpha-lab run --config configs/example.yaml
 # 3) 运行含 DL 插件接口的流程
 alpha-lab run --config configs/example_with_dl.yaml
 
-# 4) 打开 GUI
+# 4) 训练真实 DL 模型（TCN / Transformer）
+pip install -e .[dl]
+alpha-lab dl-train --config configs/example_dl_train_tcn.yaml
+alpha-lab dl-infer --config configs/example_dl_infer_tcn.yaml
+
+# 5) 打开 GUI
 alpha-lab gui
 ```
 

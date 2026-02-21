@@ -4,6 +4,39 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import pyarrow as pa
+import pyarrow.ipc as ipc
+
+_SUPPORTED_FREQUENCIES = {"daily", "minute"}
+_DATASET_CANDIDATES: dict[str, tuple[str, ...]] = {
+    "daily": ("daily.parquet", "daily.arrow", "daily.feather"),
+    "minute": ("minute.parquet", "minute.arrow", "minute.feather"),
+}
+
+
+def _read_arrow_ipc(path: Path) -> pd.DataFrame:
+    """Read Arrow IPC file in either file or stream format."""
+    with pa.memory_map(path, "r") as source:
+        try:
+            table = ipc.RecordBatchFileReader(source).read_all()
+            return table.to_pandas()
+        except pa.ArrowInvalid:
+            pass
+
+    with pa.memory_map(path, "r") as source:
+        table = ipc.RecordBatchStreamReader(source).read_all()
+        return table.to_pandas()
+
+
+def _read_dataset(path: Path) -> pd.DataFrame:
+    suffix = path.suffix.lower()
+    if suffix == ".parquet":
+        return pd.read_parquet(path)
+    if suffix == ".feather":
+        return pd.read_feather(path)
+    if suffix == ".arrow":
+        return _read_arrow_ipc(path)
+    raise ValueError(f"unsupported dataset format: {path.suffix}")
 
 
 class DataPortal:
@@ -19,12 +52,17 @@ class DataPortal:
         start: str | None = None,
         end: str | None = None,
     ) -> pd.DataFrame:
-        file_name = "daily.parquet" if frequency == "daily" else "minute.parquet"
-        path = self.data_dir / file_name
-        if not path.exists():
-            raise FileNotFoundError(f"dataset not found: {path}")
+        if frequency not in _SUPPORTED_FREQUENCIES:
+            allowed = ", ".join(sorted(_SUPPORTED_FREQUENCIES))
+            raise ValueError(f"unsupported frequency: {frequency}. expected one of: {allowed}")
 
-        df = pd.read_parquet(path)
+        candidates = [self.data_dir / name for name in _DATASET_CANDIDATES[frequency]]
+        path = next((candidate for candidate in candidates if candidate.exists()), None)
+        if path is None:
+            expected = ", ".join(str(candidate) for candidate in candidates)
+            raise FileNotFoundError(f"dataset not found. tried: {expected}")
+
+        df = _read_dataset(path)
         if "datetime" not in df.columns:
             raise ValueError(f"missing datetime column in {path}")
         if "symbol" not in df.columns:

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from alpha_lab.factors import apply_operations
 
@@ -34,3 +35,11 @@ def test_apply_neutralize() -> None:
     out = apply_operations(base, [{"op": "neutralize"}], frame)
     assert out.index.equals(base.index)
     assert np.isfinite(out.dropna()).all()
+
+
+def test_fillna_invalid_method_raises() -> None:
+    frame = _mock_frame()
+    base = frame["close"].copy()
+    base.iloc[0] = np.nan
+    with pytest.raises(ValueError, match="unsupported fillna method"):
+        apply_operations(base, [{"op": "fillna", "method": "invalid"}], frame)

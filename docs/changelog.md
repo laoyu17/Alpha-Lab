@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.3.0] - 2026-02-21
+
+### Added
+
+- New DL workflow with `dl.mode=train|infer|skip` and `dl.model_type=tcn|transformer`
+- New CLI commands: `alpha-lab dl-train` and `alpha-lab dl-infer`
+- Sequence dataset builder for DL features/labels with configurable lookback/horizon
+- PyTorch-based TCN and Transformer regressors for DL factor generation
+- New example configs for TCN/Transformer train-infer pipelines
+
+### Changed
+
+- `fillna` now raises explicit error on unsupported methods (no silent fallback)
+- Guard operator rule check now aligns with current operator registry
+- Pipeline now skips DL stage when `dl.mode=skip` and rejects `dl.mode=train` in `run`
+
+## [0.2.1] - 2026-02-21
+
+### Changed
+
+- DataPortal now validates `frequency` strictly and supports Parquet / Arrow IPC(含 Feather) dataset loading
+- Price adjustment now applies `adj_factor` to OHLC for consistent evaluation basis
+- Evaluator now materializes rolling IC diagnostics from `eval.rolling_window`
+- GUI Report Viewer now supports factor switching for per-factor metric inspection
+- Regression docs updated for new validation and guard scenarios
+
 ## [0.2.0] - 2026-02-21
 
 ### Added

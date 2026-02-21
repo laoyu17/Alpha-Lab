@@ -37,6 +37,14 @@ alpha-lab generate-demo-data --output data/demo
 alpha-lab run --config configs/example.yaml
 ```
 
+If DL training/inference logic changed, additionally run:
+
+```bash
+pip install -e .[dl]
+alpha-lab dl-train --config configs/example_dl_train_tcn.yaml
+alpha-lab dl-infer --config configs/example_dl_infer_tcn.yaml
+```
+
 ## Pull Request Template
 
 Please follow `.github/pull_request_template.md` and include:

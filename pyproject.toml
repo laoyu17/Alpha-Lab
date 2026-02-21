@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "alpha-lab"
-version = "0.1.0"
+version = "0.3.0"
 description = "Open-source alpha factor research toolkit for internship portfolio"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -24,6 +24,9 @@ dev = [
   "pytest>=8.0",
   "ruff>=0.6",
   "mypy>=1.10",
+]
+dl = [
+  "torch>=2.2",
 ]
 
 [project.scripts]

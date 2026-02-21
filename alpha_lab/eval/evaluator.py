@@ -140,6 +140,38 @@ def _attribution(long_short: pd.Series, market_return: pd.Series) -> dict[str, f
     return {"alpha": float(beta[0]), "beta": float(beta[1]), "r2": r2}
 
 
+def _rolling_ic_metrics(ic_series: pd.Series, window: int) -> dict[str, float]:
+    if window <= 0:
+        return {
+            "ic_roll_mean_last": float(np.nan),
+            "ic_roll_ir_last": float(np.nan),
+            "ic_roll_mean_mean": float(np.nan),
+            "ic_roll_ir_mean": float(np.nan),
+        }
+
+    cleaned = ic_series.dropna().astype(float)
+    if cleaned.empty:
+        return {
+            "ic_roll_mean_last": float(np.nan),
+            "ic_roll_ir_last": float(np.nan),
+            "ic_roll_mean_mean": float(np.nan),
+            "ic_roll_ir_mean": float(np.nan),
+        }
+
+    rolling_mean = cleaned.rolling(window=window, min_periods=window).mean()
+    rolling_std = cleaned.rolling(window=window, min_periods=window).std(ddof=0)
+    rolling_ir = rolling_mean / (rolling_std + 1e-12)
+
+    return {
+        "ic_roll_mean_last": (
+            float(rolling_mean.iloc[-1]) if not rolling_mean.empty else float(np.nan)
+        ),
+        "ic_roll_ir_last": float(rolling_ir.iloc[-1]) if not rolling_ir.empty else float(np.nan),
+        "ic_roll_mean_mean": float(rolling_mean.mean()),
+        "ic_roll_ir_mean": float(rolling_ir.mean()),
+    }
+
+
 @dataclass(slots=True)
 class Evaluator:
     spec: EvalSpec
@@ -195,6 +227,7 @@ class Evaluator:
             "turnover_mean": float(turnover.mean()) if not turnover.empty else float("nan"),
             **walk_forward,
             **attribution,
+            **_rolling_ic_metrics(ic_series, self.spec.rolling_window),
         }
 
         return EvaluationResult(

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import traceback
 import webbrowser
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from alpha_lab.pipeline import run_pipeline
@@ -11,6 +11,7 @@ try:
     from PyQt6.QtCore import QObject, QRunnable, QThreadPool, pyqtSignal
     from PyQt6.QtWidgets import (
         QApplication,
+        QComboBox,
         QFileDialog,
         QFormLayout,
         QHBoxLayout,
@@ -33,6 +34,7 @@ except ImportError as exc:  # pragma: no cover - runtime import guard
 @dataclass(slots=True)
 class UiState:
     report_path: Path | None = None
+    evaluations: dict[str, object] = field(default_factory=dict)
 
 
 class WorkerSignals(QObject):
@@ -105,6 +107,16 @@ class MainWindow(QMainWindow):
         report_layout = QVBoxLayout(report_tab)
         self.report_label = QLabel("Report: -")
         report_layout.addWidget(self.report_label)
+
+        factor_row = QHBoxLayout()
+        factor_row.addWidget(QLabel("Factor"))
+        self.factor_selector = QComboBox()
+        self.factor_selector.setEnabled(False)
+        self.factor_selector.currentTextChanged.connect(self._on_factor_changed)
+        factor_row.addWidget(self.factor_selector)
+        factor_row.addStretch(1)
+        report_layout.addLayout(factor_row)
+
         report_btn_row = QHBoxLayout()
         self.open_report_btn = QPushButton("Open Report")
         self.open_report_btn.setEnabled(False)
@@ -191,15 +203,36 @@ class MainWindow(QMainWindow):
         else:
             self.report_label.setText("Report: not generated")
 
-        self._fill_metrics_table(result)
-
-    def _fill_metrics_table(self, result: object) -> None:
         evaluations = getattr(result, "evaluation", {})
-        if not evaluations:
+        if isinstance(evaluations, dict):
+            self.state.evaluations = evaluations
+        else:
+            self.state.evaluations = {}
+        self._refresh_factor_selector()
+        self._fill_metrics_table(self.factor_selector.currentText())
+
+    def _refresh_factor_selector(self) -> None:
+        names = sorted(self.state.evaluations.keys())
+        self.factor_selector.blockSignals(True)
+        self.factor_selector.clear()
+        self.factor_selector.addItems(names)
+        self.factor_selector.setEnabled(bool(names))
+        self.factor_selector.blockSignals(False)
+        if names:
+            self.factor_selector.setCurrentIndex(0)
+
+    def _on_factor_changed(self, factor_name: str) -> None:
+        self._fill_metrics_table(factor_name)
+
+    def _fill_metrics_table(self, factor_name: str) -> None:
+        if not factor_name:
             self.metrics_table.setRowCount(0)
             return
-        first_factor = next(iter(evaluations.values()))
-        metrics = getattr(first_factor, "metrics", {})
+        factor_result = self.state.evaluations.get(factor_name)
+        if factor_result is None:
+            self.metrics_table.setRowCount(0)
+            return
+        metrics = getattr(factor_result, "metrics", {})
         self.metrics_table.setRowCount(len(metrics))
         for i, (k, v) in enumerate(metrics.items()):
             self.metrics_table.setItem(i, 0, QTableWidgetItem(str(k)))

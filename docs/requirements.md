@@ -18,7 +18,7 @@ Alpha-Lab 旨在把“因子挖掘”做成标准工程流水线，服务于量�
 ### 3.1 数据层
 
 - 支持 `daily`、`minute` 两种频率
-- 统一 Parquet/Arrow 存储接口
+- 统一 Parquet / Arrow IPC(含 Feather) 存储接口
 - 支持按标的和时间过滤
 
 ### 3.2 因子层
@@ -34,6 +34,7 @@ Alpha-Lab 旨在把“因子挖掘”做成标准工程流水线，服务于量�
 - 多空收益与换手
 - 稳定性（按年度分段）
 - Walk-forward 样本外指标
+- 滚动窗口 IC 诊断指标（由 `eval.rolling_window` 控制）
 - 成本后净收益指标
 
 ### 3.4 防坑与风控工程
@@ -46,13 +47,14 @@ Alpha-Lab 旨在把“因子挖掘”做成标准工程流水线，服务于量�
 
 - 自动生成 HTML 报告与图表
 - 输出 summary / metrics / stability CSV
-- 提供 PyQt6 GUI：任务配置、运行日志、报告查看
+- 提供 PyQt6 GUI：任务配置、运行日志、报告查看（支持因子切换）
 
 ### 3.6 Phase-2 深度学习扩展接口
 
-- 提供配置化 `dl` 区块（启用开关、插件名、参数、输出因子名）
-- 提供插件运行入口，输出与普通因子一致的 `MultiIndex(datetime, symbol)` 序列
-- 默认插件为轻量占位实现，可无缝替换为真实 PyTorch/Transformer 模型
+- 提供配置化 `dl` 区块（启用开关、模式、模型类型、特征、参数、输出因子名）
+- 支持 `train/infer/skip` 模式，训练与推理链路解耦
+- 支持真实 PyTorch `TCN` 与 `Transformer` 两类序列模型
+- 兼容历史轻量插件入口，输出统一为 `MultiIndex(datetime, symbol)` 序列
 
 ## 4. 非功能需求
 
@@ -64,4 +66,3 @@ Alpha-Lab 旨在把“因子挖掘”做成标准工程流水线，服务于量�
 
 - 实盘交易接入
 - 全量 Level2 真实行情接入
-- 深度学习策略主流程训练框架（当前仅提供插件接口，不内置重型训练依赖）

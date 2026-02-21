@@ -1,0 +1,51 @@
+task_name: demo_dl_train_tcn
+data_dir: data/demo
+output_dir: outputs
+frequency: daily
+symbols: [AAA, BBB, CCC, DDD, EEE]
+start: "2023-01-03"
+end: "2023-12-31"
+
+factors:
+  - name: price_smooth_20
+    source: close
+    operations:
+      - op: rolling_mean
+        window: 20
+      - op: zscore
+      - op: winsorize
+        lower: 0.05
+        upper: 0.95
+      - op: neutralize
+    fillna: ffill
+
+  - name: volume_decay_10
+    source: volume
+    operations:
+      - op: decay_linear
+        window: 10
+      - op: rank
+      - op: winsorize
+      - op: neutralize
+    fillna: zero
+
+dl:
+  enabled: true
+  mode: train
+  model_type: tcn
+  output_name: dl_alpha_tcn
+  checkpoint_path: outputs/demo_dl_train_tcn/dl/tcn_checkpoint.pt
+  features: [price_smooth_20, volume_decay_10, close_ret_1]
+  params:
+    lookback: 20
+    horizon: 1
+    hidden_dim: 32
+    num_layers: 2
+    dropout: 0.1
+    kernel_size: 3
+  train:
+    epochs: 8
+    batch_size: 64
+    lr: 0.001
+    val_split: 0.2
+    seed: 7

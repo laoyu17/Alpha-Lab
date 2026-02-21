@@ -14,10 +14,13 @@ class GuardSuite:
     spec: GuardSpec
 
     def apply_price_adjustment(self, frame: pd.DataFrame) -> pd.DataFrame:
-        if "adj_factor" not in frame.columns or "close" not in frame.columns:
+        if "adj_factor" not in frame.columns:
             return frame
         adjusted = frame.copy()
-        adjusted["close"] = adjusted["close"].astype(float) * adjusted["adj_factor"].astype(float)
+        factor = adjusted["adj_factor"].astype(float)
+        for price_col in ("open", "high", "low", "close"):
+            if price_col in adjusted.columns:
+                adjusted[price_col] = adjusted[price_col].astype(float) * factor
         return adjusted
 
     def apply_tradable_filter(self, factor: pd.Series, frame: pd.DataFrame) -> pd.Series:
@@ -76,16 +79,6 @@ class GuardSuite:
             name = str(op.get("op", "")).lower()
             if "lead" in name or "future" in name:
                 bad_ops.append(name)
-            raw_period = op.get("period", 0.0)
-            if isinstance(raw_period, (int, float, str)):
-                try:
-                    period = float(raw_period)
-                except ValueError:
-                    period = 0.0
-            else:
-                period = 0.0
-            if name == "shift" and period < 0:
-                bad_ops.append(f"shift(period={raw_period})")
 
         if bad_ops:
             return GuardIssue(

@@ -135,7 +135,7 @@ def op_fillna(series: pd.Series, params: dict[str, Any], _: pd.DataFrame) -> pd.
         return s.groupby(level=1, group_keys=False).bfill()
     if method == "zero":
         return s.fillna(0.0)
-    return s
+    raise ValueError(f"unsupported fillna method: {method}")
 
 
 OPERATOR_REGISTRY: dict[str, Operator] = {
