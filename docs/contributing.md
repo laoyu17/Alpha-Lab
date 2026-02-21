@@ -43,6 +43,8 @@ If DL training/inference logic changed, additionally run:
 pip install -e .[dl]
 alpha-lab dl-train --config configs/example_dl_train_tcn.yaml
 alpha-lab dl-infer --config configs/example_dl_infer_tcn.yaml
+# one-command full DL regression (TCN + Transformer + artifact checks)
+./scripts/regression_dl.sh
 ```
 
 ## Pull Request Template
