@@ -1,0 +1,49 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "alpha-lab"
+version = "0.1.0"
+description = "Open-source alpha factor research toolkit for internship portfolio"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "laoyu17" }]
+license = { text = "MIT" }
+dependencies = [
+  "numpy>=1.26",
+  "pandas>=2.1",
+  "pyarrow>=14",
+  "PyYAML>=6.0",
+  "matplotlib>=3.8",
+  "PyQt6>=6.5",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "ruff>=0.6",
+  "mypy>=1.10",
+]
+
+[project.scripts]
+alpha-lab = "alpha_lab.cli:main"
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+warn_return_any = false
+warn_unused_ignores = true
+check_untyped_defs = true
