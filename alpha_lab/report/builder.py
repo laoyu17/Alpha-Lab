@@ -78,7 +78,7 @@ class ReportBuilder:
             self._plot_series(
                 result.long_short_returns,
                 ls_plot,
-                f"{factor_name} Long-Short Return",
+                f"{factor_name} Long-Short Return (Gross)",
                 "Return",
             )
             self._plot_series(
@@ -116,7 +116,7 @@ class ReportBuilder:
                 "<div class='grid'>"
                 f"<img src='{factor_name}/ic.png' alt='IC' />"
                 f"<img src='{factor_name}/rank_ic.png' alt='RankIC' />"
-                f"<img src='{factor_name}/long_short.png' alt='Long Short' />"
+                f"<img src='{factor_name}/long_short.png' alt='Long Short (Gross)' />"
                 f"<img src='{factor_name}/turnover.png' alt='Turnover' />"
                 f"<img src='{factor_name}/quantiles.png' alt='Quantiles' />"
                 "</div></section>"
