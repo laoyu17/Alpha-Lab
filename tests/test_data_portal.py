@@ -23,6 +23,17 @@ def test_data_portal_load_minute(demo_data_dir) -> None:
     assert minute.index.get_level_values(1).unique().tolist() == ["AAA"]
 
 
+def test_data_portal_minute_end_date_includes_whole_day(demo_data_dir) -> None:
+    portal = DataPortal(demo_data_dir)
+    minute = portal.load_minute(symbols=["AAA"])
+    target_day = minute.index.get_level_values(0).max().date().isoformat()
+
+    filtered = portal.load_minute(symbols=["AAA"], start=target_day, end=target_day)
+    assert not filtered.empty
+    assert filtered.index.get_level_values(0).date.min().isoformat() == target_day
+    assert filtered.index.get_level_values(0).date.max().isoformat() == target_day
+
+
 def test_data_portal_invalid_frequency_raises(demo_data_dir) -> None:
     portal = DataPortal(demo_data_dir)
     with pytest.raises(ValueError, match="unsupported frequency"):
