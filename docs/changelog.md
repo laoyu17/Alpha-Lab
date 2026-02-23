@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.3.3] - 2026-02-23
+
+### Added
+
+- Added README GUI demo media bundle with a lightweight `docs/assets/gui-demo.gif` and three key UI screenshots (Task Config / Task Runner / Report Viewer)
+
+### Changed
+
+- Updated README GUI section to include a recruiter-friendly end-to-end visual walkthrough
+- Updated `docs/assets/README.md` with media usage constraints (resolution, GIF duration/size target, and privacy notes)
+
 ## [0.3.2] - 2026-02-21
 
 ### Added

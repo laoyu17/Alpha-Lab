@@ -83,6 +83,16 @@ alpha-lab dl-infer --config configs/example_dl_infer_transformer.yaml
 alpha-lab gui
 ```
 
+### UI 演示（README）
+
+面向招聘/面试场景，下面素材展示了 Alpha-Lab 的核心 GUI 流程：配置任务 -> 运行任务 -> 查看报告。
+
+![Alpha-Lab GUI demo](docs/assets/gui-demo.gif)
+
+| Task Config | Task Runner | Report Viewer |
+| --- | --- | --- |
+| ![Task Config](docs/assets/gui-task.png) | ![Task Runner](docs/assets/gui-runner.png) | ![Report Viewer](docs/assets/report-preview.png) |
+
 建议按以下步骤手工验证一次完整 UI 流程：
 
 1. 在 `Task Config` 页选择 `configs/example.yaml`
