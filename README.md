@@ -13,7 +13,7 @@ Alpha-Lab 是一个面向量化因子研究的工程化工具链，提供从数�
 - 数据层：支持 `daily`/`minute` 两种频率，支持 Parquet / Arrow IPC(含 Feather)
 - 因子层：内置 `rolling_mean`、`rolling_std`、`rank`、`zscore`、`decay_linear`、`winsorize`、`neutralize`
 - Guard 层：前视算子规则检查、可交易性过滤、复权处理
-- 评估层：IC / RankIC、分层收益、多空收益、换手、稳定性、walk-forward、归因
+- 评估层：IC / RankIC、分层收益、多空收益、换手、稳定性、walk-forward、归因、成本后净收益
 - 报告层：自动生成 HTML 报告及 CSV/图表工件
 - 运行入口：CLI + PyQt6 GUI
 - DL 扩展：兼容轻量插件 + 支持 TCN/Transformer 训练与推理流程
@@ -83,6 +83,16 @@ alpha-lab dl-infer --config configs/example_dl_infer_transformer.yaml
 alpha-lab gui
 ```
 
+### UI 演示（README）
+
+面向招聘/面试场景，下面素材展示了 Alpha-Lab 的核心 GUI 流程：配置任务 -> 运行任务 -> 查看报告。
+
+![Alpha-Lab GUI demo](docs/assets/gui-demo.gif)
+
+| Task Config | Task Runner | Report Viewer |
+| --- | --- | --- |
+| ![Task Config](docs/assets/gui-task.png) | ![Task Runner](docs/assets/gui-runner.png) | ![Report Viewer](docs/assets/report-preview.png) |
+
 建议按以下步骤手工验证一次完整 UI 流程：
 
 1. 在 `Task Config` 页选择 `configs/example.yaml`
@@ -108,6 +118,8 @@ pytest
 ```bash
 alpha-lab dl-train --config configs/example_dl_train_tcn.yaml
 alpha-lab dl-infer --config configs/example_dl_infer_tcn.yaml
+# full DL regression (TCN + Transformer + output checks)
+./scripts/regression_dl.sh
 ```
 
 ## 目录结构

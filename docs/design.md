@@ -44,6 +44,7 @@ DataPortal -> Factor Pipeline -> GuardSuite -> Evaluator -> CostModel -> ReportB
 ### 2.5 `alpha_lab/costs`
 
 - `LinearCostModel`：线性交易成本估计（commission + slippage）
+- 在评估结果中补充成本后净收益指标：`ls_net_mean`、`ls_net_sharpe`
 
 ### 2.6 `alpha_lab/report`
 
@@ -93,7 +94,7 @@ DataPortal -> Factor Pipeline -> GuardSuite -> Evaluator -> CostModel -> ReportB
 ## 4. 输出约定
 
 - `outputs/<task_name>/report.html`
-- `outputs/<task_name>/summary.csv`
+- `outputs/<task_name>/summary.csv`（含 `ls_net_mean`、`ls_net_sharpe`）
 - `outputs/<task_name>/<factor>/metrics.csv`
 - `outputs/<task_name>/<factor>/stability.csv`
 - `outputs/<task_name>/<factor>/*.png`
