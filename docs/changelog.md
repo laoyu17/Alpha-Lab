@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.3.4] - 2026-02-28
+
+### Added
+
+- Added configurable evaluation annualization fields: `eval.trading_days_per_year` and `eval.periods_per_day`
+- Added minute-frequency example config `configs/example_minute.yaml` with explicit annualization settings
+- Added regression tests for annualization semantics and compatibility (daily default invariance + minute scaling checks)
+
+### Changed
+
+- Unified Sharpe annualization in evaluator and net metrics to `sqrt(trading_days_per_year * periods_per_day)`
+- Updated design/testing docs to clarify annualization semantics and required regression checks
+
 ## [0.3.3] - 2026-02-23
 
 ### Added

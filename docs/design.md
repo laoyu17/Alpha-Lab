@@ -40,6 +40,8 @@ DataPortal -> Factor Pipeline -> GuardSuite -> Evaluator -> CostModel -> ReportB
 - walk-forward 样本外 IC 统计
 - 滚动窗口 IC 诊断（`rolling_window`）
 - 因子收益对市场收益回归归因（alpha/beta/r2）
+- 年化口径可配置：`annualizer = sqrt(trading_days_per_year * periods_per_day)`，
+  统一用于 `ls_sharpe` 与 `ls_net_sharpe`
 
 ### 2.5 `alpha_lab/costs`
 
@@ -87,7 +89,9 @@ DataPortal -> Factor Pipeline -> GuardSuite -> Evaluator -> CostModel -> ReportB
 - `task_name`, `data_dir`, `output_dir`, `frequency`
 - `symbols`, `start`, `end`
 - `factors[]`: `name`, `source`, `operations[]`, `fillna`
-- `eval`, `guards`, `costs`
+- `eval`: `forward_period`, `quantiles`, `rolling_window`, `walk_forward_train`,
+  `walk_forward_test`, `trading_days_per_year`（默认 252）, `periods_per_day`（默认 1）
+- `guards`, `costs`
 - `dl`: `enabled`, `mode`, `model_type`, `checkpoint_path`, `features`, `train`, `params`
 - 兼容字段：`plugin`, `feature_factors`（历史配置仍可运行）
 
@@ -103,3 +107,5 @@ DataPortal -> Factor Pipeline -> GuardSuite -> Evaluator -> CostModel -> ReportB
 
 - 配置字段只增不删；废弃字段需保留兼容读取
 - CLI 命令和输出结构保持稳定
+- `eval.trading_days_per_year` / `eval.periods_per_day` 提供默认值（252 / 1），
+  确保旧 daily 配置不改也可保持历史口径

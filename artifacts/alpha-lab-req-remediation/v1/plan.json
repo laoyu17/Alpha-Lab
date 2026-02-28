@@ -1,0 +1,115 @@
+{
+  "plan_id": "alpha-lab-req-remediation",
+  "version": "v1",
+  "scope": {
+    "module": "alpha-lab",
+    "entrypoint": "alpha_lab/cli.py"
+  },
+  "steps": [
+    {
+      "id": "S1",
+      "title": "修复评估年化口径：支持 trading_days_per_year 与 periods_per_day 并接入 Evaluator",
+      "risk": "high",
+      "inputs": [
+        "alpha_lab/pipeline.py",
+        "alpha_lab/eval/evaluator.py",
+        "configs/example.yaml",
+        "docs/design.md"
+      ],
+      "outputs": [
+        "alpha_lab/pipeline.py",
+        "alpha_lab/eval/evaluator.py",
+        "configs/example.yaml",
+        "docs/design.md"
+      ]
+    },
+    {
+      "id": "S2",
+      "title": "补齐 minute/daily 评估语义回归测试与配置兼容测试",
+      "risk": "med",
+      "inputs": [
+        "tests/test_pipeline.py",
+        "tests/test_evaluator.py"
+      ],
+      "outputs": [
+        "tests/test_pipeline.py",
+        "tests/test_evaluator.py"
+      ]
+    },
+    {
+      "id": "S3",
+      "title": "收口版本与文档一致性（pyproject/changelog/testing-regression/design）",
+      "risk": "med",
+      "inputs": [
+        "pyproject.toml",
+        "docs/changelog.md",
+        "docs/testing-regression.md",
+        "docs/design.md"
+      ],
+      "outputs": [
+        "pyproject.toml",
+        "docs/changelog.md",
+        "docs/testing-regression.md",
+        "docs/design.md"
+      ]
+    },
+    {
+      "id": "S4",
+      "title": "产出修复前后口径说明与验收交接文档（verify-report/handoff）",
+      "risk": "low",
+      "inputs": [
+        "artifacts/alpha-lab-req-remediation/v1/verify-report.md",
+        "artifacts/alpha-lab-req-remediation/v1/handoff.md"
+      ],
+      "outputs": [
+        "artifacts/alpha-lab-req-remediation/v1/verify-report.md",
+        "artifacts/alpha-lab-req-remediation/v1/handoff.md"
+      ]
+    }
+  ],
+  "file_map": [
+    {
+      "from": "alpha_lab/pipeline.py",
+      "to": "alpha_lab/pipeline.py",
+      "mode": "update"
+    },
+    {
+      "from": "alpha_lab/eval/evaluator.py",
+      "to": "alpha_lab/eval/evaluator.py",
+      "mode": "update"
+    },
+    {
+      "from": "tests/test_pipeline.py",
+      "to": "tests/test_pipeline.py",
+      "mode": "update"
+    },
+    {
+      "from": "tests/test_evaluator.py",
+      "to": "tests/test_evaluator.py",
+      "mode": "update"
+    },
+    {
+      "from": "pyproject.toml",
+      "to": "pyproject.toml",
+      "mode": "update"
+    },
+    {
+      "from": "docs/changelog.md",
+      "to": "docs/changelog.md",
+      "mode": "update"
+    }
+  ],
+  "acceptance": [
+    "No step skipping",
+    "Single module per step",
+    "Daily defaults remain backward compatible",
+    "Minute annualization uses sqrt(trading_days_per_year * periods_per_day)",
+    "Verification report exists before handoff"
+  ],
+  "assumptions": [
+    "docs/requirements.md is the primary acceptance baseline",
+    "Priority is correctness over performance",
+    "No breaking changes to CLI/config/output structure",
+    "DL workflow only requires compatibility regression in this change"
+  ]
+}

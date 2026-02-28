@@ -40,6 +40,16 @@ pytest
 9. **DL 训练推理**：`dl-train -> dl-infer -> report` 产出链路可执行（安装 `.[dl]` 后）
 10. **成本后指标口径**：`summary.csv` 包含净收益字段（`ls_net_mean`、`ls_net_sharpe`）
 11. **CLI 异常路径**：`run`/`dl-train`/`dl-infer` 失败时返回非 0 并输出可读错误信息
+12. **年化口径兼容性**：daily 旧配置（未填写新增字段）与显式 `252 x 1` 结果一致
+13. **minute 年化缩放**：在固定收益序列下，`periods_per_day` 放大应按 `sqrt(k)` 缩放 Sharpe 指标
+
+## 3.1 口径专项回归（daily/minute）
+
+建议在常规 `pytest` 之外，显式执行以下用例：
+
+```bash
+pytest tests/test_evaluator.py tests/test_pipeline.py -k "annualizer or daily_defaults or minute_sharpe"
+```
 
 ## 4. 回归记录模板
 

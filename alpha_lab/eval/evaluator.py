@@ -75,7 +75,12 @@ def _turnover_by_bucket(bucket: pd.Series, target_bucket: int) -> pd.Series:
     return pd.Series(dict(turnover), dtype=float)
 
 
-def _calc_stability(ic_series: pd.Series, long_short: pd.Series) -> pd.DataFrame:
+def _annualizer(spec: EvalSpec) -> float:
+    periods_per_year = float(spec.trading_days_per_year) * float(spec.periods_per_day)
+    return math.sqrt(periods_per_year) if periods_per_year > 0 else float("nan")
+
+
+def _calc_stability(ic_series: pd.Series, long_short: pd.Series, annualizer: float) -> pd.DataFrame:
     if ic_series.empty:
         return pd.DataFrame(columns=["ic_mean", "ic_ir", "ls_mean", "ls_sharpe"])
 
@@ -89,7 +94,11 @@ def _calc_stability(ic_series: pd.Series, long_short: pd.Series) -> pd.DataFrame
         ls_mean = float(chunk["ls"].mean())
         ls_std = float(chunk["ls"].std(ddof=0))
         ic_ir = ic_mean / ic_std if ic_std > 0 else np.nan
-        ls_sharpe = (ls_mean / ls_std * math.sqrt(252)) if ls_std > 0 else np.nan
+        ls_sharpe = (
+            (ls_mean / ls_std * annualizer)
+            if ls_std > 0 and np.isfinite(annualizer)
+            else np.nan
+        )
         rows.append(
             {
                 "segment": str(year),
@@ -176,6 +185,10 @@ def _rolling_ic_metrics(ic_series: pd.Series, window: int) -> dict[str, float]:
 class Evaluator:
     spec: EvalSpec
 
+    @property
+    def annualizer(self) -> float:
+        return _annualizer(self.spec)
+
     def evaluate(self, frame: pd.DataFrame, factor: pd.Series) -> EvaluationResult:
         fwd = _forward_return(frame, self.spec.forward_period)
         ic_series = _group_corr(factor, fwd)
@@ -205,7 +218,8 @@ class Evaluator:
             if not quantiles_non_na.empty
             else pd.Series(dtype=float)
         )
-        stability = _calc_stability(ic_series, long_short)
+        annualizer = self.annualizer
+        stability = _calc_stability(ic_series, long_short, annualizer)
         market_return = fwd.groupby(level=0).mean()
         attribution = _attribution(long_short, market_return)
         walk_forward = _walk_forward_ic(
@@ -220,8 +234,8 @@ class Evaluator:
             "rank_ic_mean": float(rank_ic_series.mean()),
             "ls_mean": float(long_short.mean()) if not long_short.empty else float("nan"),
             "ls_sharpe": (
-                float(long_short.mean() / (long_short.std(ddof=0) + 1e-12) * np.sqrt(252))
-                if not long_short.empty
+                float(long_short.mean() / (long_short.std(ddof=0) + 1e-12) * annualizer)
+                if (not long_short.empty and np.isfinite(annualizer))
                 else float("nan")
             ),
             "turnover_mean": float(turnover.mean()) if not turnover.empty else float("nan"),

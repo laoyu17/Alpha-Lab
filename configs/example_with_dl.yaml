@@ -35,6 +35,8 @@ eval:
   rolling_window: 120
   walk_forward_train: 120
   walk_forward_test: 30
+  trading_days_per_year: 252
+  periods_per_day: 1
 
 guards:
   enable_future_check: true

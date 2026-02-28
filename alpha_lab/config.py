@@ -22,6 +22,8 @@ class EvalSpec:
     rolling_window: int = 120
     walk_forward_train: int = 252
     walk_forward_test: int = 63
+    trading_days_per_year: int = 252
+    periods_per_day: int = 1
 
 
 @dataclass(slots=True)

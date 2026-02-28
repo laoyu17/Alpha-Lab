@@ -27,14 +27,18 @@ def _build_factor(
     return apply_operations(base, operations, frame)
 
 
-def _attach_net_metrics(result: EvaluationResult, cost_model: LinearCostModel) -> EvaluationResult:
+def _attach_net_metrics(
+    result: EvaluationResult,
+    cost_model: LinearCostModel,
+    annualizer: float,
+) -> EvaluationResult:
     costs = cost_model.estimate(result.turnover)
     costs = costs.reindex(result.long_short_returns.index).ffill().fillna(0.0)
     net_ls = result.long_short_returns - costs
     result.metrics["ls_net_mean"] = float(net_ls.mean()) if not net_ls.empty else float(np.nan)
     result.metrics["ls_net_sharpe"] = (
-        float(net_ls.mean() / (net_ls.std(ddof=0) + 1e-12) * np.sqrt(252))
-        if not net_ls.empty
+        float(net_ls.mean() / (net_ls.std(ddof=0) + 1e-12) * annualizer)
+        if (not net_ls.empty and np.isfinite(annualizer))
         else float(np.nan)
     )
     return result
@@ -88,6 +92,7 @@ def run_pipeline(config_or_path: TaskConfig | str | Path) -> PipelineResult:
     guard_suite = GuardSuite(config.guards)
     frame = guard_suite.apply_price_adjustment(frame)
     evaluator = Evaluator(config.eval)
+    annualizer = evaluator.annualizer
     cost_model = LinearCostModel(
         commission_bps=config.costs.commission_bps,
         slippage_bps=config.costs.slippage_bps,
@@ -98,7 +103,7 @@ def run_pipeline(config_or_path: TaskConfig | str | Path) -> PipelineResult:
 
     for factor_name, factor in factor_values.items():
         evaluation = evaluator.evaluate(frame, factor)
-        evaluation = _attach_net_metrics(evaluation, cost_model)
+        evaluation = _attach_net_metrics(evaluation, cost_model, annualizer)
         evaluations[factor_name] = evaluation
 
     factor_frame = pd.DataFrame(factor_values).sort_index() if factor_values else pd.DataFrame()
@@ -114,7 +119,7 @@ def run_pipeline(config_or_path: TaskConfig | str | Path) -> PipelineResult:
         factor_frame = pd.DataFrame(factor_values).sort_index()
 
         dl_evaluation = evaluator.evaluate(frame, dl_factor)
-        dl_evaluation = _attach_net_metrics(dl_evaluation, cost_model)
+        dl_evaluation = _attach_net_metrics(dl_evaluation, cost_model, annualizer)
         evaluations[config.dl.output_name] = dl_evaluation
 
     guard_report = guard_suite.build_report(issues)

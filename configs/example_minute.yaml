@@ -1,10 +1,10 @@
-task_name: demo_dl_infer_tcn
+task_name: demo_factor_research_minute
 data_dir: data/demo
 output_dir: outputs
-frequency: daily
+frequency: minute
 symbols: [AAA, BBB, CCC, DDD, EEE]
 start: "2023-01-03"
-end: "2023-12-31"
+end: "2023-01-31"
 
 factors:
   - name: price_smooth_20
@@ -36,7 +36,7 @@ eval:
   walk_forward_train: 120
   walk_forward_test: 30
   trading_days_per_year: 252
-  periods_per_day: 1
+  periods_per_day: 240
 
 guards:
   enable_future_check: true
@@ -48,16 +48,11 @@ costs:
   slippage_bps: 5.0
 
 dl:
-  enabled: true
-  mode: infer
-  model_type: tcn
-  output_name: dl_alpha_tcn
-  checkpoint_path: outputs/demo_dl_train_tcn/dl/tcn_checkpoint.pt
-  features: [price_smooth_20, volume_decay_10, close_ret_1]
+  enabled: false
+  plugin: temporal_mlp_stub
+  output_name: dl_alpha
+  feature_factors: [price_smooth_20, volume_decay_10]
   params:
-    lookback: 20
-    horizon: 1
-    hidden_dim: 32
-    num_layers: 2
-    dropout: 0.1
-    kernel_size: 3
+    lookback: 12
+    momentum_weight: 0.7
+    fusion_weight: 0.3
